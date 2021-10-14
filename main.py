@@ -59,5 +59,14 @@ def task_2():
 
 
 if __name__ == '__main__':
+    print("----------- Starting -----------")
+    print("Task 1")
     task_1()
+    print("----------- Finished -----------")
+
+    print()
+
+    print("----------- Starting -----------")
+    print("Task 2")
     task_2()
+    print("----------- Finished -----------")
