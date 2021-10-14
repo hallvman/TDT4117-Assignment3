@@ -75,7 +75,6 @@ def task_3():
 
     print(tfidif_s_m)
 
-    tf
 
 
 def task_4():
