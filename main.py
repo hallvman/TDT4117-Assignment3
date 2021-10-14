@@ -12,6 +12,7 @@ import os
 
 stemmer = PorterStemmer()
 
+
 # 1. Data loading and preprocessing
 def load_paragraphs(file):
     paragraphs = [text for text in file.read().split(2 * os.linesep) if (text != "") and ("gutenberg" not in text.lower())]
@@ -35,12 +36,14 @@ def stem_words(tokenized_paragraphs):
     #print(f"Stemmed words: {stemmed_words[:50]}")
     return stemmed_words
 
+
 def create_corpus(stop_words, words):
     dictionary = gensim.corpora.Dictionary(words)
     stop_word_ids = [dictionary.token2id[stop_word] for stop_word in stop_words if stop_word in dictionary.values()]
     dictionary.filter_tokens(stop_word_ids)
     list_of_bow = [dictionary.doc2bow(paragraph) for paragraph in words]
     return list_of_bow
+
 
 def task_1():
     with codecs.open("pg3300.txt", "r", "utf-8") as f:
@@ -49,6 +52,7 @@ def task_1():
         stemmed_word_paragraphs = stem_words(tokenized_paragraps)
         return stemmed_word_paragraphs
 
+
 def task_2():
     words = task_1()
     with codecs.open("stop_words.txt", "r", "utf-8") as f:
@@ -56,26 +60,27 @@ def task_2():
         corpus = create_corpus(stop_words, words)
         return corpus
 
-def corpus_model(corpus):
+
+def tf_idf_model(corpus):
     tfidf_model = gensim.models.TfidfModel(corpus)
 
-    tfidf_corpus = []
-    for i in range(len(corpus)):
-        tfidf_corpus.append(tfidf_model[corpus[i]])
+    tfidf_corpus = tfidf_model[corpus]
 
     tfidf_sim = gensim.similarities.MatrixSimilarity(tfidf_corpus)
 
     return tfidf_sim
 
 
+def tf_idf_model_LSI(corpus):
+    pass
+
 def task_3():
     corpus = task_2()
 
-    tfidif_s_m = corpus_model(corpus)
+    tfidif_s_m = tf_idf_model(corpus)
 
     print(tfidif_s_m)
 
-    tf
 
 
 def task_4():
