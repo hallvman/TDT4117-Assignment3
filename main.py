@@ -50,12 +50,14 @@ def task_1():
         return stemmed_word_paragraphs
 
 def task_2():
-    print("Task 2\n")
     words = task_1()
     with codecs.open("stop_words.txt", "r", "utf-8") as f:
         stop_words = f.read().split(",")
         corpus = create_corpus(stop_words, words)
         return corpus
+
+def task_3():
+
 
 
 if __name__ == '__main__':
@@ -70,3 +72,9 @@ if __name__ == '__main__':
     print("Task 2")
     task_2()
     print("----------- Finished -----------")
+
+    print("----------- Starting -----------")
+    print("Task 3")
+    task_3()
+    print("----------- Finished -----------")
+
