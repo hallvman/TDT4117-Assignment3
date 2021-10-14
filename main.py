@@ -37,7 +37,7 @@ def create_corpus(stop_words, words):
     stop_word_ids = [dictionary.token2id[stop_word] for stop_word in stop_words if stop_word in dictionary.values()]
     dictionary.filter_tokens(stop_word_ids)
     list_of_bow = [dictionary.doc2bow(paragraph) for paragraph in words]
-    return list_of_bow
+    return list_of_bow, dictionary
 
 
 def task_1():
@@ -52,8 +52,8 @@ def task_2():
     words = task_1()
     with codecs.open("stop_words.txt", "r", "utf-8") as f:
         stop_words = f.read().split(",")
-        corpus = create_corpus(stop_words, words)
-        return corpus
+        corpus, dictionary = create_corpus(stop_words, words)
+        return corpus, dictionary
 
 
 def tf_idf_model(corpus):
@@ -66,28 +66,31 @@ def tf_idf_model(corpus):
     return tfidf_sim
 
 
-def tf_idf_model_LSI(corpus):
-    lsi_model = gensim.models.LsiModel(corpus)
+def tf_idf_model_LSI(corpus, dictionary):
+    lsi_model = gensim.models.LsiModel(corpus, id2word=dictionary, num_topics=100)
 
     lsi_corpus = lsi_model[corpus]
 
     lsi_sim = gensim.similarities.MatrixSimilarity(lsi_corpus)
 
     # Commented out for easier readability when working on task_4
-    # print(lsi_model.show_topics())
+    topics = lsi_model.show_topics()
+
+    for i in topics:
+        print(i)
+
     return lsi_sim
 
 def task_3():
-    corpus = task_2()
+    corpus, dictionary = task_2()
 
     tfidif_s_m = tf_idf_model(corpus)
 
     print("tfidif:", tfidif_s_m)
 
-    lsi_s_m = tf_idf_model_LSI(corpus)
+    lsi_s_m = tf_idf_model_LSI(corpus, dictionary)
 
     print("lsi:", lsi_s_m)
-
 
 def task_4():
     print("Ikke påbegynt")
