@@ -1,17 +1,12 @@
-# 1.0
 import random
-random.seed(123)
-# 1.1
 import codecs
-# 1.5
 import string
-# 1.6
 from nltk.stem.porter import PorterStemmer
 import gensim
 import os
 
 stemmer = PorterStemmer()
-
+random.seed(123)
 
 # 1. Data loading and preprocessing
 def load_paragraphs(file):
@@ -72,15 +67,26 @@ def tf_idf_model(corpus):
 
 
 def tf_idf_model_LSI(corpus):
-    pass
+    lsi_model = gensim.models.LsiModel(corpus)
+
+    lsi_corpus = lsi_model[corpus]
+
+    lsi_sim = gensim.similarities.MatrixSimilarity(lsi_corpus)
+
+    # Commented out for easier readability when working on task_4
+    # print(lsi_model.show_topics())
+    return lsi_sim
 
 def task_3():
     corpus = task_2()
 
     tfidif_s_m = tf_idf_model(corpus)
 
-    print(tfidif_s_m)
+    print("tfidif:", tfidif_s_m)
 
+    lsi_s_m = tf_idf_model_LSI(corpus)
+
+    print("lsi:", lsi_s_m)
 
 
 def task_4():
