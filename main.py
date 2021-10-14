@@ -1,5 +1,6 @@
 # 1.0
-import random; random.seed(123)
+import random
+random.seed(123)
 # 1.1
 import codecs
 # 1.5
@@ -7,59 +8,41 @@ import string
 # 1.6
 from nltk.stem.porter import PorterStemmer
 import gensim
+import os
 
-
-f = codecs.open("pg3300.txt", "r", "utf-8")
 stemmer = PorterStemmer()
-translator = str.maketrans(
-            '',
-            '',
-            string.punctuation + "\n\r\t")
-
 
 # 1. Data loading and preprocessing
-texts = f.read().split('\n\n')
+def load_paragraphs(file):
+    paragraphs = [text for text in file.read().split(2 * os.linesep) if (text != "") and ("gutenberg" not in text.lower())]
+    print(f"Paragraphs: {paragraphs[:50]}")
+    return paragraphs
 
-paragraphs = []
-for text in texts:
-    if text != "":
-        # 1.3
-        if "gutenberg" not in text.lower():
-            paragraphs.append(text)
-
-print("Paragraphs")
-#print("Paragraphs", paragraphs)
 
 # 1.4 tokenize paragraphs
-words = [None for i in range(len(paragraphs))]
-for i, p in enumerate(paragraphs):
-    paragraphs[i] = p.split(" ")
-    words[i] = paragraphs[i]
+def tokenize_paragraphs(paragraphs):
+    translator = str.maketrans('', '', string.punctuation + "\n\r\t")
+    tokenized_paragraphs =  [
+        [word.lower().translate(translator) for word in paragraph.split(" ")] for paragraph in paragraphs
+    ]
+    print(f"Tokenized paragraphs {tokenized_paragraphs[:50]}")
+    return tokenized_paragraphs
 
-print("Words")
-#print("Words", words)
-
-# 1.5 Remove punctuation from text
-processed_words = []
-for w in words:
-    for i, word in enumerate(w):
-        # Remove punctuations
-        words[i] = word.lower().translate(translator)
-        if p in words[i]:
-            processed_words[i] = words[i]
-
-print("Processed_words")
-#print("Processed_words", processed_words)
 
 # 1.6  Using portstemmer stem words
-stemmed_words = []
-for i, word in enumerate(processed_words):
-    processed_words[i] = stemmer.stem(word)
-    stemmed_words[i] = processed_words[i]
-
-print(stemmed_words)
+def stem_words(tokenized_paragraphs):
+    stemmed_words = [[stemmer.stem(word) for word in paragraph] for paragraph in tokenized_paragraphs]
+    print(f"Stemmed words: {stemmed_words[:50]}")
+    return stemmed_words
 
 
+def task_1():
+    with codecs.open("pg3300.txt", "r", "utf-8") as f:
+        paragraphs = load_paragraphs(f)
+        tokenized_paragraps = tokenize_paragraphs(paragraphs)
+        stem_words(tokenized_paragraps)
 
 
-
+if __name__ == '__main__':
+    print(f"task 1")
+    task_1()
