@@ -56,8 +56,30 @@ def task_2():
         corpus = create_corpus(stop_words, words)
         return corpus
 
-def task_3():
+def corpus_model(corpus):
+    tfidf_model = gensim.models.TfidfModel(corpus)
 
+    tfidf_corpus = []
+    for i in range(len(corpus)):
+        tfidf_corpus.append(tfidf_model[corpus[i]])
+
+    tfidf_sim = gensim.similarities.MatrixSimilarity(tfidf_corpus)
+
+    return tfidf_sim
+
+
+def task_3():
+    corpus = task_2()
+
+    tfidif_s_m = corpus_model(corpus)
+
+    print(tfidif_s_m)
+
+    tf
+
+
+def task_4():
+    print("Ikke påbegynt")
 
 
 if __name__ == '__main__':
@@ -73,8 +95,17 @@ if __name__ == '__main__':
     task_2()
     print("----------- Finished -----------")
 
+    print()
+
     print("----------- Starting -----------")
     print("Task 3")
     task_3()
+    print("----------- Finished -----------")
+
+    print()
+
+    print("----------- Starting -----------")
+    print("Task 4")
+    task_4()
     print("----------- Finished -----------")
 
