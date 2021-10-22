@@ -42,7 +42,7 @@ def stem_words(tokenized_paragraphs):
     #print(f"Stemmed words: {stemmed_words[:50]}")
     return stemmed_words
 
-
+# 2.1 dictionary building
 def create_corpus(stop_words, words):
     dictionary = gensim.corpora.Dictionary(words)
     stop_word_ids = [dictionary.token2id[stop_word] for stop_word in stop_words if stop_word in dictionary.values()]
@@ -129,9 +129,10 @@ def task_4():
 
     tfidf_index = gensim.similarities.MatrixSimilarity(tf_idf_corpus)
 
-    doc2similarity = enumerate(tfidf_index[tfidf_query])
+    doc2similarity_tfidf = enumerate(tfidf_index[tfidf_query])
 
-    for parnum, sim in sorted(doc2similarity, key=lambda kv: -kv[0])[:3]:
+    doc2similarity_tfidf_sorted = sorted(doc2similarity_tfidf, key=lambda kv: -kv[1])
+    for parnum, sim in doc2similarity_tfidf_sorted[:3]:
         current_paragraph = paragraphs[parnum].split("\n")[:5] if len(paragraphs[parnum].split("\n")) > 5 else paragraphs[parnum].split("\n")
         print(f"\n[paragraph: {parnum}, similarity: {sim}]")
         for i in current_paragraph:
@@ -147,10 +148,11 @@ def task_4():
     lsi_index = gensim.similarities.MatrixSimilarity(lsi_corpus)
 
     print(sorted(lsi_query, key=lambda kv: -abs(kv[1]))[:3])
-    #print(lsi_model.show_topics())
+    print(lsi_model.show_topics())
     doc2similarity_lsi = enumerate(lsi_index[lsi_query])
 
-    for parnum, sim in sorted(doc2similarity_lsi, key=lambda kv: -kv[1])[:3]:
+    doc2similarity_lsi_sorted = sorted(doc2similarity_lsi, key=lambda kv: -kv[1])[:3]
+    for parnum, sim in doc2similarity_lsi_sorted[:3]:
         current_paragraph = paragraphs[parnum].split("\n")[:5] if len(paragraphs[parnum].split("\n")) > 5 else paragraphs[parnum].split("\n")
         print(f"\n[paragraph: {parnum}, similarity: {sim}]")
         for i in current_paragraph:
