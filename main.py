@@ -71,23 +71,21 @@ def tf_idf_model_LSI(corpus, dictionary):
     lsi_sim = gensim.similarities.MatrixSimilarity(lsi_corpus)
 
     topics = lsi_model.show_topics()
-    for topic in topics:
-        print(topic)
-    return lsi_sim
+    #for topic in topics:
+    #    print(topic)
+    #return lsi_sim
 
 
-def prepare_query(queries):
-    #translator = str.maketrans('', '', string.punctuation + "\n\r\t")
-    #tokenized_query = [[word.lower().translate(translator) for word in query.split()] for query in queries]
-    #stemmed_query = [stemmer.stem(word) for word in tokenized_query]
-    tokenized_queries = tokenize_paragraphs(queries)
-    stemmed_queries = stem_words(tokenized_queries)
-    return stemmed_queries
+def prepare_query(query):
+    translator = str.maketrans('', '', string.punctuation + "\n\r\t")
+    tokenized_query = [word.lower().translate(translator) for word in query.split()]
+    stemmed_query = [stemmer.stem(word) for word in tokenized_query]
+    return stemmed_query
 
-
-def query_to_bow(prepared_queries, stop_words):
-    list_of_bow, dictionary = create_corpus(stop_words, prepared_queries)
-    return list_of_bow, dictionary
+def query_to_bow(query, dictionary):
+    prepared_query = prepare_query(query)
+    query_bow = dictionary.doc2bow(prepared_query)
+    return query_bow
 
 
 def task_1():
@@ -95,21 +93,21 @@ def task_1():
         paragraphs = load_paragraphs(f)
         tokenized_paragraps = tokenize_paragraphs(paragraphs)
         stemmed_word_paragraphs = stem_words(tokenized_paragraps)
-        return stemmed_word_paragraphs
+        return stemmed_word_paragraphs, paragraphs
 
 
-#GLOBAL
+# GLOBAL
 stop_words = define_stop_words("stop_words.txt")
 
 
 def task_2():
-    words = task_1()
+    words, paragraphs = task_1()
     corpus, dictionary = create_corpus(stop_words, words)
-    return corpus, dictionary
+    return corpus, dictionary, paragraphs
 
 
 def task_3():
-    corpus, dictionary = task_2()
+    corpus, dictionary, paragraphs = task_2()
 
     tfidif_s_m = tf_idf_model(corpus)
 
@@ -119,15 +117,44 @@ def task_3():
 
 
 def task_4():
-    # to be able to reuse code, we send in a list of queries even when there is only one
-    queries = ["What is the function of money?"]
-    prepared_query = prepare_query(queries)
-    print(prepared_query)
-    list_of_bow, dictionary = query_to_bow(prepared_query, stop_words)
-    print(list_of_bow)
-    print(dictionary)
-    tf_idf = tf_idf_model(list_of_bow, calulate_sim_matr=False)
-    print([i for i in tf_idf])
+
+    #TF-IDF
+    print(f"------------------TFIDF-------------------")
+    corpus, dictionary, paragraphs = task_2()
+    tfidf_model = gensim.models.TfidfModel(corpus, dictionary=dictionary)
+    query_bow = query_to_bow("How taxes influence Economics?", dictionary)
+    tfidf_query = tfidf_model[query_bow]
+
+    tf_idf_corpus = tfidf_model[corpus]
+
+    tfidf_index = gensim.similarities.MatrixSimilarity(tf_idf_corpus)
+
+    doc2similarity = enumerate(tfidf_index[tfidf_query])
+
+    for parnum, sim in sorted(doc2similarity, key=lambda kv: -kv[0])[:3]:
+        current_paragraph = paragraphs[parnum].split("\n")[:5] if len(paragraphs[parnum].split("\n")) > 5 else paragraphs[parnum].split("\n")
+        print(f"\n[paragraph: {parnum}, similarity: {sim}]")
+        for i in current_paragraph:
+            print(i)
+
+    #LSI
+    print(f"\n------------------LSI-------------------\n")
+    lsi_model = gensim.models.LsiModel(corpus, id2word=dictionary, num_topics=100)
+    lsi_query = lsi_model[tfidf_query]
+
+    lsi_corpus = lsi_model[corpus]
+
+    lsi_index = gensim.similarities.MatrixSimilarity(lsi_corpus)
+
+    print(sorted(lsi_query, key=lambda kv: -abs(kv[1]))[:3])
+    #print(lsi_model.show_topics())
+    doc2similarity_lsi = enumerate(lsi_index[lsi_query])
+
+    for parnum, sim in sorted(doc2similarity_lsi, key=lambda kv: -kv[1])[:3]:
+        current_paragraph = paragraphs[parnum].split("\n")[:5] if len(paragraphs[parnum].split("\n")) > 5 else paragraphs[parnum].split("\n")
+        print(f"\n[paragraph: {parnum}, similarity: {sim}]")
+        for i in current_paragraph:
+            print(i)
 
 
 
@@ -158,4 +185,3 @@ if __name__ == '__main__':
     print("Task 4")
     task_4()
     print("----------- Finished -----------")
-
