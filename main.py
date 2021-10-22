@@ -17,7 +17,8 @@ def define_stop_words(stopwordfile):
 
 # 1. Data loading and preprocessing
 def load_paragraphs(file):
-    paragraphs = [text for text in file.read().split(2 * os.linesep) if (text != "") and ("gutenberg" not in text.lower())]
+    paragraphs = [text for text in file.read().split(2 * os.linesep)
+                  if (text != "") and ("gutenberg" not in text.lower())]
     # print(f"Paragraphs: {paragraphs[:50]}")
     return paragraphs
 
@@ -79,7 +80,7 @@ def tf_idf_model_LSI(corpus, dictionary):
         print(topic)
     return lsi_sim
 
-
+# 4.1
 # Tokenize and stem query
 def prepare_query(query):
     translator = str.maketrans('', '', string.punctuation + "\n\r\t")
@@ -87,7 +88,7 @@ def prepare_query(query):
     stemmed_query = [stemmer.stem(word) for word in tokenized_query]
     return stemmed_query
 
-
+# 4.2
 # Convert query to BOW-representation
 def query_to_bow(query, dictionary):
     prepared_query = prepare_query(query)
@@ -121,6 +122,8 @@ def task_3():
     lsi_s_m = tf_idf_model_LSI(corpus, dictionary)
 
     print(tfidif_s_m)
+
+    print(lsi_s_m)
 
 
 def task_4():
