@@ -1,11 +1,9 @@
-# 1.0
+
 import random
 random.seed(123)
-# 1.1
+
 import codecs
-# 1.5
 import string
-# 1.6
 from nltk.stem.porter import PorterStemmer
 import gensim
 import os
@@ -22,7 +20,7 @@ def define_stop_words(stopwordfile):
 # 1. Data loading and preprocessing
 def load_paragraphs(file):
     paragraphs = [text for text in file.read().split(2 * os.linesep) if (text != "") and ("gutenberg" not in text.lower())]
-    #print(f"Paragraphs: {paragraphs[:50]}")
+    # print(f"Paragraphs: {paragraphs[:50]}")
     return paragraphs
 
 
@@ -32,17 +30,20 @@ def tokenize_paragraphs(paragraphs):
     tokenized_paragraphs = [
         [word.lower().translate(translator) for word in paragraph.split(" ")] for paragraph in paragraphs
     ]
-    #print(f"Tokenized paragraphs {tokenized_paragraphs[:50]}")
+    # print(f"Tokenized paragraphs {tokenized_paragraphs[:50]}")
     return tokenized_paragraphs
 
 
 # 1.6  Using portstemmer stem words
 def stem_words(tokenized_paragraphs):
     stemmed_words = [[stemmer.stem(word) for word in paragraph] for paragraph in tokenized_paragraphs]
-    #print(f"Stemmed words: {stemmed_words[:50]}")
+    # print(f"Stemmed words: {stemmed_words[:50]}")
     return stemmed_words
 
+
 # 2.1 dictionary building
+# 2.1 Filter out stopwords using global value "stop_words"
+# 2.2 map paragraphs into BOW
 def create_corpus(stop_words, words):
     dictionary = gensim.corpora.Dictionary(words)
     stop_word_ids = [dictionary.token2id[stop_word] for stop_word in stop_words if stop_word in dictionary.values()]
@@ -51,6 +52,9 @@ def create_corpus(stop_words, words):
     return list_of_bow, dictionary
 
 
+# 3.1 Build TFIDF-model for documents
+# 3.2 Map BOWs into tf-idf weights
+# 3.3 Construct matrix similarity
 def tf_idf_model(corpus, calulate_sim_matr=True):
     tfidf_model = gensim.models.TfidfModel(corpus)
 
@@ -63,6 +67,8 @@ def tf_idf_model(corpus, calulate_sim_matr=True):
         return tfidf_corpus
 
 
+# Repeat 3.1, 3.2 and 3.3 for LSI-model
+# Report top 3 topics
 def tf_idf_model_LSI(corpus, dictionary):
     lsi_model = gensim.models.LsiModel(corpus, id2word=dictionary, num_topics=100)
 
@@ -71,17 +77,20 @@ def tf_idf_model_LSI(corpus, dictionary):
     lsi_sim = gensim.similarities.MatrixSimilarity(lsi_corpus)
 
     topics = lsi_model.show_topics()
-    #for topic in topics:
-    #    print(topic)
-    #return lsi_sim
+    for topic in topics:
+        print(topic)
+    return lsi_sim
 
 
+# Tokenize and stem query
 def prepare_query(query):
     translator = str.maketrans('', '', string.punctuation + "\n\r\t")
     tokenized_query = [word.lower().translate(translator) for word in query.split()]
     stemmed_query = [stemmer.stem(word) for word in tokenized_query]
     return stemmed_query
 
+
+# Convert query to BOW-representation
 def query_to_bow(query, dictionary):
     prepared_query = prepare_query(query)
     query_bow = dictionary.doc2bow(prepared_query)
@@ -120,17 +129,28 @@ def task_4():
 
     #TF-IDF
     print(f"------------------TFIDF-------------------")
+
+    # create corpus and dict from documents
     corpus, dictionary, paragraphs = task_2()
+
+    # Create model (difficult reusing function from task 3
     tfidf_model = gensim.models.TfidfModel(corpus, dictionary=dictionary)
+
+    # Prepare query
     query_bow = query_to_bow("How taxes influence Economics?", dictionary)
+
+    # query-BOW => tf-idf weights
     tfidf_query = tfidf_model[query_bow]
 
+    # Doc-bow => tf-idf weights
     tf_idf_corpus = tfidf_model[corpus]
 
+    # Create sim matrix
     tfidf_index = gensim.similarities.MatrixSimilarity(tf_idf_corpus)
 
     doc2similarity_tfidf = enumerate(tfidf_index[tfidf_query])
 
+    # Print 5 lines from top 3 docs
     doc2similarity_tfidf_sorted = sorted(doc2similarity_tfidf, key=lambda kv: -kv[1])
     for parnum, sim in doc2similarity_tfidf_sorted[:3]:
         current_paragraph = paragraphs[parnum].split("\n")[:5] if len(paragraphs[parnum].split("\n")) > 5 else paragraphs[parnum].split("\n")
@@ -139,6 +159,7 @@ def task_4():
             print(i)
 
     #LSI
+    #Repeat above steps for LSI
     print(f"\n------------------LSI-------------------\n")
     lsi_model = gensim.models.LsiModel(corpus, id2word=dictionary, num_topics=100)
     lsi_query = lsi_model[tfidf_query]
