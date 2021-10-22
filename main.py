@@ -1,13 +1,11 @@
-
 import random
-random.seed(123)
-
 import codecs
 import string
 from nltk.stem.porter import PorterStemmer
 import gensim
 import os
 
+random.seed(123)
 stemmer = PorterStemmer()
 
 
@@ -77,7 +75,7 @@ def tf_idf_model_LSI(corpus, dictionary):
     lsi_sim = gensim.similarities.MatrixSimilarity(lsi_corpus)
 
     topics = lsi_model.show_topics()
-    for topic in topics:
+    for topic in topics[:3]:
         print(topic)
     return lsi_sim
 
@@ -158,8 +156,8 @@ def task_4():
         for i in current_paragraph:
             print(i)
 
-    #LSI
-    #Repeat above steps for LSI
+    # LSI
+    # Repeat above steps for LSI
     print(f"\n------------------LSI-------------------\n")
     lsi_model = gensim.models.LsiModel(corpus, id2word=dictionary, num_topics=100)
     lsi_query = lsi_model[tfidf_query]
@@ -168,8 +166,8 @@ def task_4():
 
     lsi_index = gensim.similarities.MatrixSimilarity(lsi_corpus)
 
-    print(sorted(lsi_query, key=lambda kv: -abs(kv[1]))[:3])
-    print(lsi_model.show_topics())
+    # print(sorted(lsi_query, key=lambda kv: -abs(kv[1]))[:3])
+    # print(lsi_model.show_topics())
     doc2similarity_lsi = enumerate(lsi_index[lsi_query])
 
     doc2similarity_lsi_sorted = sorted(doc2similarity_lsi, key=lambda kv: -kv[1])[:3]
@@ -199,12 +197,12 @@ if __name__ == '__main__':
 
     print("----------- Starting -----------")
     print("Task 3")
-    #task_3()
+    task_3()
     print("----------- Finished -----------")
 
     print()
 
     print("----------- Starting -----------")
     print("Task 4")
-    task_4()
+    #task_4()
     print("----------- Finished -----------")
